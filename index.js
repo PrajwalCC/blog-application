@@ -7,7 +7,24 @@ import cors from "cors";
 
 const app = express()
 
-app.use(cors());
+
+// app.use(cors());
+app.use(
+    cors({
+    origin: true,
+    optionsSuccessStatus: 200,
+    credentials: true,
+})
+);
+app.options(
+    "*",
+cors({
+    origin: true,
+    optionsSuccessStatus: 200,
+    credentials: true,
+})
+);
+
 app.use(express.json());
 app.use("/api/user", router);
 app.use("/api/blog", blogRouter);
