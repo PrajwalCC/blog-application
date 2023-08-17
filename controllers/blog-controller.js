@@ -88,16 +88,18 @@ export const deleteBlog = async (req, res, next) => {
 
   let blog;
   try {
-    // populate("user") will add user object to blog variable  
+
+    // populate("user") will add user object to blog variable
     blog = await Blog.findByIdAndRemove(id).populate("user");
 
-    // now removing deleted blog from user's blogs field as well
-    await blog.user.blogs.pull(blog);
-    await blog.user.save();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await blog.user.blogs.pull(blog);// now removing deleted blog from user's blogs field as well
+    await blog.user.save({ session });
+    await session.commitTransaction();
+
   } catch (err) {
     console.log(err);
-  }
-  if (!blog) {
     return res.status(500).json({ message: "Unable To Delete" });
   }
   return res.status(200).json({ message: "Successfully Delete" });
